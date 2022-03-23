@@ -41,7 +41,7 @@ def index():
         return render_template('index.html', memo=memo)
     else:
         return redirect("/page")
-    
+      
 @app.route("/page")
 def page():
     memo = request.values.get('memo','')
