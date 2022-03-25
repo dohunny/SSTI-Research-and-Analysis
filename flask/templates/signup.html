@@ -40,10 +40,11 @@
 	</head>
 	<body>
 		<div class="container">
-			<h1>Sign In</h1>
-			<form method="POST" action="/signin">
-				<input class="uid" type="text" placeholder="id"/>
-				<input class="upw" type="password" placeholder="pw"/>
+			<h1>Sign Up</h1>
+			<form method="POST" action="/signup">
+				<input name="uid" type="text" placeholder="id"/>
+				<input name="upw" type="password" placeholder="pw"/>
+				<textarea name="message" placeholder="Type what you want"></textarea>
 				<input class="submit" type="submit" value="Save">
 			</form>
 			<div class="memo">

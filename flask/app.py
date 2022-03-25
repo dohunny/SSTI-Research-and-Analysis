@@ -1,6 +1,6 @@
-from flask import Flask, flash, render_template, request, session, redirect
+from flask import Flask, flash, render_template, request, session, redirect, url_for
 from flask.templating import render_template_string
-from sklearn.utils import resample
+import uuid
 from route.app_route import app_route 
 from jinja2 import Environment
 from sqlalchemy import Column, TEXT
@@ -22,77 +22,78 @@ def init_db(app):
 
 class Notes(db.Model):
     __tablename__ = 'notes'
-    uuid = Column(UUIDType(binary=False), primary_key=True)
-    uid = Column(TEXT)
+    uid = Column(TEXT, primary_key=True)
     upw = Column(TEXT)
     message = Column(TEXT)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///notes.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = str(uuid.uuid4())
 db = init_db(app)
 
 app.register_blueprint(app_route) 
 
-@app.route('/', methods=["GET","POST"])
+@app.route('/', methods=["GET"])
 def index():
-    if not session.get('uid'):
-        signin()
-    if request.method == "GET":
-        return render_template('index.html', memo=memo)
-    else:
-        return redirect("/page")
+    if not session.get('user'):
+        return redirect(url_for('signin'))
+    user = session.get('user')
+    return render_template("index.html", uid=user['uid'], message=user['message'])
       
-@app.route("/page")
+@app.route("/detail")
 def page():
-    memo = request.values.get('memo','')
+    if not session.get('user'):
+        return redirect(url_for('signin'))
+    memo = session.get('user')['message']
     output = Jinja2.from_string(render_template_string(memo)).render()
     return output
 
 @app.route("/signin", methods=["GET", "POST"])
 def signin():
     if request.method == "GET":
-        if not session.get('uid'):
-            return render_template('signin.html')
-        else:
-            return redirect("/page")
+        if session.get('user'):
+            return redirect(url_for('index'))
+        return render_template('signin.html')
     else:
-        uid = request.form['uid']
-        upw = request.form['upw']
+        uid = str(request.form['uid'])
+        upw = str(request.form['upw'])
         res = Notes.query.filter_by(uid=uid, upw=upw).first()
         if res is not None:
-            session['uid'] = uid
-            return redirect("/page")
+            session['user'] = {"uid":res., "message":message}
+            return redirect(url_for('index'))
         else:
             flash("Wrong ID or PW")
-            return redirect("/signin")
+            return redirect(url_for('signin'))
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "GET":
-        if not session.get('uid'):
-            return render_template('signup.html')
-        else:
-            return redirect("/page")
+        return render_template("signup.html")
+
     else:
-        uid = request.form['uid']
-        upw = request.form['upw']
-        message = request.form['message']
+        uid = str(request.form['uid'])
+        upw = str(request.form['upw'])
+        message = str(request.form['message'])
         res = Notes.query.filter_by(uid=uid).first()
         if res is not None:
             flash("Your ID already exists")
-            return redirect("/signup")
-        else:
-            notes = Notes(
-                uid = str(uid), 
-                upw = str(upw),
-                message = str(message)
-            )
-            db.session.add(notes)
-            db.session.commit()
-            session['uid'] = uid
-            return redirect("/page")
+            return redirect(url_for('signin'))
+        notes = Notes(
+            uid = uid, 
+            upw = upw,
+            message = message
+        )
+        db.session.add(notes)
+        db.session.commit()
+        session['user'] = {"uid":uid, "message":message}
+        flash("Registeration Success!")
+        return redirect(url_for('index'))
 
+@app.route('/logout', methods=['GET'])
+def logout():
+	session.pop('user', None)
+	return redirect(url_for('index'))
 
 if __name__ == '__main__': 
 	# app.run(host='0.0.0.0')
-	app.run(host='0.0.0.0', port=40012)
+	app.run(host='0.0.0.0', port=40012, debug=True)
