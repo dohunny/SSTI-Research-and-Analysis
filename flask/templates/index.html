@@ -41,14 +41,19 @@
 	<body>
 		<div class="container">
 			<h1>Welcome to Our MemoSystem</h1>
-			<form method="GET" action="/page">
-				<textarea name="memo" placeholder="Type what you have to remember..."></textarea>
-				<input class="submit" type="submit" value="Save">
-			</form>
 			<div class="memo">
-				{{memoTemp}}
+				{{uid}}
+				{{message}}
 			</div>
+			<button name="detail" onclick="location.href='/page'"
 		</div>
 	</body>
+	{%with messages = get_flashed_messages()%}
+		{%if messages %}
+			<script type="text/javascript">
+				alert("{{messages[-1]}}");
+			</script>
+		{%endif%}
+  	{%endwith%}
 </html>
 

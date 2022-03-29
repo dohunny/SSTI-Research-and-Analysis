@@ -4,7 +4,6 @@ import uuid
 from route.app_route import app_route 
 from jinja2 import Environment
 from sqlalchemy import Column, TEXT
-from sqlalchemy_utils import UUIDType
 from flask_sqlalchemy import SQLAlchemy
 
 Jinja2 = Environment()
@@ -35,6 +34,7 @@ app.register_blueprint(app_route)
 
 @app.route('/', methods=["GET"])
 def index():
+    print("[!] index")
     if not session.get('user'):
         return redirect(url_for('signin'))
     user = session.get('user')
@@ -42,6 +42,7 @@ def index():
       
 @app.route("/detail")
 def page():
+    print("[!] detail")
     if not session.get('user'):
         return redirect(url_for('signin'))
     memo = session.get('user')['message']
@@ -50,6 +51,7 @@ def page():
 
 @app.route("/signin", methods=["GET", "POST"])
 def signin():
+    print("[!] signin")
     if request.method == "GET":
         if session.get('user'):
             return redirect(url_for('index'))
@@ -59,7 +61,7 @@ def signin():
         upw = str(request.form['upw'])
         res = Notes.query.filter_by(uid=uid, upw=upw).first()
         if res is not None:
-            session['user'] = {"uid":res., "message":message}
+            session['user'] = {"uid":res.uid, "message":res.uid}
             return redirect(url_for('index'))
         else:
             flash("Wrong ID or PW")
@@ -67,6 +69,7 @@ def signin():
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
+    print("[!] signup")
     if request.method == "GET":
         return render_template("signup.html")
 
@@ -77,7 +80,7 @@ def signup():
         res = Notes.query.filter_by(uid=uid).first()
         if res is not None:
             flash("Your ID already exists")
-            return redirect(url_for('signin'))
+            return redirect(url_for('signup'))
         notes = Notes(
             uid = uid, 
             upw = upw,
