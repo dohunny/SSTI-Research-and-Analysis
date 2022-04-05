@@ -34,7 +34,6 @@ app.register_blueprint(app_route)
 
 @app.route('/', methods=["GET"])
 def index():
-    print("[!] index")
     if not session.get('user'):
         return redirect(url_for('signin'))
     user = session.get('user')
@@ -42,7 +41,6 @@ def index():
       
 @app.route("/detail")
 def page():
-    print("[!] detail")
     if not session.get('user'):
         return redirect(url_for('signin'))
     memo = session.get('user')['message']
@@ -51,17 +49,16 @@ def page():
 
 @app.route("/signin", methods=["GET", "POST"])
 def signin():
-    print("[!] signin")
+    if session.get('user'):
+        return redirect(url_for('index'))
     if request.method == "GET":
-        if session.get('user'):
-            return redirect(url_for('index'))
         return render_template('signin.html')
     else:
         uid = str(request.form['uid'])
         upw = str(request.form['upw'])
         res = Notes.query.filter_by(uid=uid, upw=upw).first()
         if res is not None:
-            session['user'] = {"uid":res.uid, "message":res.uid}
+            session['user'] = {"uid":res.uid, "message":res.message}
             return redirect(url_for('index'))
         else:
             flash("Wrong ID or PW")
@@ -69,10 +66,8 @@ def signin():
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
-    print("[!] signup")
     if request.method == "GET":
         return render_template("signup.html")
-
     else:
         uid = str(request.form['uid'])
         upw = str(request.form['upw'])
@@ -88,9 +83,18 @@ def signup():
         )
         db.session.add(notes)
         db.session.commit()
-        session['user'] = {"uid":uid, "message":message}
         flash("Registeration Success!")
-        return redirect(url_for('index'))
+        return redirect(url_for('signin'))
+
+@app.route('/edit', methods=['GET','POST'])
+def edit():
+    if not session.get('user'):
+        return redirect(url_for('signin'))
+    if request.method == "GET":
+        return render_template('edit.html', uid=session.get('user')['uid'])
+    else:
+
+        pass
 
 @app.route('/logout', methods=['GET'])
 def logout():

@@ -40,14 +40,14 @@
 	</head>
 	<body>
 		<div class="container">
-			<h1>Welcome to Our MemoSystem</h1>
-			<div class="memo">
-				{{uid}}
-				{{message}}
-			</div>
-			<button name="detail" onclick="location.href='/detail'">Details</button>
-			<button name="edit" onclick="location.href='/edit'">Edit</button>
-			<button name="logout" onclick="location.href='/logout'">Logout</button>
+			<h1>Edit Info</h1>
+			<form method="POST" action="/edit">
+				<input name="uid" type="text" placeholder="id" value="{{uid}}" disabled/>
+				<input name="upw" type="password" placeholder="current password"/>
+				<input name="upw" type="password" placeholder="change password"/>
+				<textarea name="message" placeholder="Type what you want">{{message}}</textarea>
+				<input class="submit" type="submit" value="Save">
+			</form>
 		</div>
 	</body>
 	{%with messages = get_flashed_messages()%}
