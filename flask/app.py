@@ -97,7 +97,7 @@ def edit():
         new_pw = str(request.form['npw'])
         message = str(request.form['message'])
         if (old_pw and new_pw) or message:
-            if old_pw and new_pw:
+            if old_pw and new_pw: 
                 res = Notes.query.filter_by(uid=session.get('user')['uid'], upw=old_pw).first()
                 if res is not None:
                     flash("Wrong ID or PW")
