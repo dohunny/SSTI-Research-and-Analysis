@@ -113,7 +113,7 @@ def edit():
         flash("No Data")
         return redirect(url_for('edit'))
 
-    return render_template('edit.html', uid=session.get('user')['uid'])
+    return render_template('edit.html', uid=session.get('user')['uid'], ms=session.get('user')['message'])
         
 
 @app.route('/logout', methods=['GET'])
