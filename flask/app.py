@@ -11,6 +11,8 @@ app = Flask(__name__)
 
 FLAG = "FLAG{YOU_KNOW_SSTI!_WELL_DONE!}"
 
+# To Do: DB파일 30분마다 초기화
+
 # DB
 db = SQLAlchemy()
 def init_db(app):
