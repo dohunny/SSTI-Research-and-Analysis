@@ -69,11 +69,12 @@ def signup():
     if request.method == "GET":
         return render_template("signup.html")
     else:
-        # ToDo: 빈 값 막기
-
-        uid = str(request.form['uid'])
-        upw = str(request.form['upw'])
+        uid = str(request.form['uid']).strip()
+        upw = str(request.form['upw']).strip()
         message = str(request.form['message'])
+        if not uid or not upw or not message:
+            flash("No data")
+            return redirect(url_for('signup'))
         res = Notes.query.filter_by(uid=uid).first()
         if res is not None:
             flash("Your ID already exists")
@@ -99,7 +100,7 @@ def edit():
         if (old_pw and new_pw) or message:
             if old_pw and new_pw: 
                 res = Notes.query.filter_by(uid=session.get('user')['uid'], upw=old_pw).first()
-                if res is not None:
+                if res is None:
                     flash("Wrong ID or PW")
                     return redirect(url_for('edit'))
                 res.upw = new_pw
