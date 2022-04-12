@@ -69,6 +69,8 @@ def signup():
     if request.method == "GET":
         return render_template("signup.html")
     else:
+        # ToDo: 빈 값 막기
+
         uid = str(request.form['uid'])
         upw = str(request.form['upw'])
         message = str(request.form['message'])
@@ -90,11 +92,29 @@ def signup():
 def edit():
     if not session.get('user'):
         return redirect(url_for('signin'))
-    if request.method == "GET":
-        return render_template('edit.html', uid=session.get('user')['uid'])
-    else:
+    if request.method == "POST":
+        old_pw = str(request.form['opw'])
+        new_pw = str(request.form['npw'])
+        message = str(request.form['message'])
+        if (old_pw and new_pw) or message:
+            if old_pw and new_pw:
+                res = Notes.query.filter_by(uid=session.get('user')['uid'], upw=old_pw).first()
+                if res is not None:
+                    flash("Wrong ID or PW")
+                    return redirect(url_for('edit'))
+                res.upw = new_pw
+            if message is not None:
+                res = Notes.query.filter_by(uid=session.get('user')['uid']).first()
+                res.message = message
+            db.session.commit()
+            session['user'] = {"uid":session.get('user')['uid'], "message":message}
+            return redirect(url_for('index'))
 
-        pass
+        flash("No Data")
+        return redirect(url_for('edit'))
+
+    return render_template('edit.html', uid=session.get('user')['uid'])
+        
 
 @app.route('/logout', methods=['GET'])
 def logout():
