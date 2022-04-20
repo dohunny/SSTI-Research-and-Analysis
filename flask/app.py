@@ -11,8 +11,6 @@ app = Flask(__name__)
 
 FLAG = "FLAG{YOU_KNOW_SSTI!_WELL_DONE!}"
 
-# To Do: DB파일 30분마다 초기화
-
 # DB
 db = SQLAlchemy()
 def init_db(app):
@@ -31,6 +29,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///notes.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = str(uuid.uuid4())
 db = init_db(app)
+
+# To Do: DB파일 30분마다 초기화
+
+def reset_db(session):
+    meta = db.metadata
+    for table in reversed(meta.sorted_tables):
+        print('Clear table %s' % table)
+        session.execute(table.delete())
+    session.commit()
 
 app.register_blueprint(app_route) 
 
@@ -116,8 +123,7 @@ def edit():
         flash("No Data")
         return redirect(url_for('edit'))
 
-    return render_template('edit.html', uid=session.get('user')['uid'], ms=session.get('user')['message'])
-        
+    return render_template('edit.html', uid=session.get('user')['uid'], ms=session.get('user')['message'])        
 
 @app.route('/logout', methods=['GET'])
 def logout():
@@ -125,5 +131,5 @@ def logout():
 	return redirect(url_for('index'))
 
 if __name__ == '__main__': 
-	# app.run(host='0.0.0.0')
-	app.run(host='0.0.0.0', port=40012, debug=True)
+    # app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=40012, debug=True)
