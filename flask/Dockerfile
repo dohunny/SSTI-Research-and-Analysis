@@ -11,4 +11,6 @@ RUN pip3 install --upgrade wheel
 RUN pip3 install uwsgi
 RUN pip3 install -r requirements.txt
 
+COPY flag /flag
+
 CMD ["uwsgi","uwsgi.ini"]
